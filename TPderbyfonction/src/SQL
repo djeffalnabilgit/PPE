@@ -1,0 +1,33 @@
+CALL SQLJ.install_jar('/home/invite/workspace/TPderbyfonction/fonctionChange.jar','APP.fonctionChange', 0);
+
+CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('derby.database.classpath','APP.fonctionChange');
+
+create function fctChange(float_value float)
+returns float
+language java parameter style java
+no sql
+external name 'fonctionDERBY.Fonctionchange.change';
+
+
+create table produit (idprod int generated always as identity primary key, designation varchar(64) not null unique, prix float not null check (prix>0))
+create table devise (iddevise int generated always as identity primary key, nom varchar (16) not null unique, taux float not null check (taux>0))
+
+select idprod, designation, prix, fctChange(prix) from PRODUIT;
+
+Call SQLJ.remove_jar ('APP.fonctionchangeD', 0);
+CALL SQLJ.install_jar('/home/invite/workspace/TPderbyfonction/fonctionchangeD.jar','APP.fonctionchangeD', 0);
+
+CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('derby.database.classpath','APP.fonctionchangeD');
+
+
+drop function fctChangeD
+create function fctChangeD(float_value float, varchar_value varchar(16))
+returns float 
+language java parameter style java 
+READS SQL DATA
+external name'derby2.FonctionchangeD.changeD'
+
+select idprod, fctChangeD(prix, 'dollar') from PRODUIT;
+
+insert into produit(designation, prix) values ('designation',12.2)
+insert into devise(nom, taux) values ('dollar',2.4)
